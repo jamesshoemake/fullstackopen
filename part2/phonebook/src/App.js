@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import personsService from './services/persons'
 
 const Filter = ({ persons, setFilteredPersons }) => {
   const onChangeFilter = (e) => {
@@ -39,9 +40,31 @@ const PersonForm = ({
     e.preventDefault()
 
     if (!isSamePerson(persons)) {
-      setPersons([...persons, { name: newName, number: newNumber }])
+      personsService
+        .create({ name: newName, number: newNumber })
+        .then((res) => {
+          console.log('person added', res)
+          setPersons([...persons, { ...res.data }])
+        })
     } else {
-      alert(`${newName} already exists in the phonebook`)
+      if (
+        window.confirm(
+          `${newName} already exists in the phonebook, replace old number?`
+        )
+      ) {
+        personsService
+          .update(isSamePerson(persons).id, {
+            name: newName,
+            number: newNumber
+          })
+          .then((res) => {
+            console.log('person number updated', res.data)
+            const personsFilteredCopy = persons.filter(
+              (person) => person.id !== res.data.id
+            )
+            setPersons([...personsFilteredCopy, { ...res.data }])
+          })
+      }
     }
   }
 
@@ -62,14 +85,36 @@ const PersonForm = ({
   )
 }
 
-const Persons = ({ filteredPersons }) => {
-  console.log(filteredPersons)
+const DeleteBtn = ({ person, persons, setPersons }) => {
+  const onClickDelete = (e) => {
+    e.preventDefault()
+    if (window.confirm('Delete?')) {
+      personsService.deletePerson(person.id).then((res) => {
+        console.log('person deleted', person.id)
+        setPersons(persons.filter((p) => p.id !== person.id))
+      })
+    }
+  }
+  return (
+    <>
+      <button onClick={onClickDelete}>Delete</button>
+    </>
+  )
+}
 
-  const filteredDisplay = filteredPersons.map((person) => (
+const Persons = ({ persons, filteredPersons, setPersons }) => {
+  let localPersons = filteredPersons
+  if (filteredPersons.length === 0) {
+    localPersons = persons
+  }
+
+  const filteredDisplay = localPersons.map((person) => (
     <li key={person.name}>
       {person.name}
       &nbsp;
       {person.number}
+      &nbsp;
+      <DeleteBtn person={person} persons={persons} setPersons={setPersons} />
     </li>
   ))
 
@@ -77,15 +122,16 @@ const Persons = ({ filteredPersons }) => {
 }
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
-  const [filteredPersons, setFilteredPersons] = useState([...persons])
+  const [filteredPersons, setFilteredPersons] = useState([])
+
+  useEffect(() => {
+    personsService.getAll().then((response) => {
+      setPersons(response.data)
+    })
+  }, [])
 
   return (
     <div>
@@ -103,7 +149,11 @@ const App = () => {
         />
       </form>
       <h2>Numbers</h2>
-      <Persons filteredPersons={filteredPersons} persons={persons} />
+      <Persons
+        filteredPersons={filteredPersons}
+        persons={persons}
+        setPersons={setPersons}
+      />
     </div>
   )
 }

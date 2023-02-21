@@ -13,7 +13,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filteredPersons, setFilteredPersons] = useState([])
   const [errorStatus, setErrorStatus] = useState(false)
-  const [message, setMessage] = useState('some error happened...')
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     personsService.getAll().then((response) => {

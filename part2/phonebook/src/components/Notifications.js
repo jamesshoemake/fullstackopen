@@ -20,14 +20,13 @@ export const Notification = ({ message, setMessage, errorStatus }) => {
   }
 
   let msgStyle
-  console.log('notifications error status', errorStatus)
   if (errorStatus) {
     msgStyle = errorStyle
   } else {
     msgStyle = changeStyle
   }
 
-  if (message === null) {
+  if (message === null || message === '') {
     return null
   }
 

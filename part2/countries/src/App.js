@@ -4,7 +4,17 @@ import { useState} from 'react'
 const DisplayCountries = ({countries}) => {
   if(countries === null || countries === '') return<div>No countries</div>
 
-  const countriesList = countries.map((country) =>  (<li>{country.name.common}</li>))
+  let countriesList
+  if(countries.length > 1){
+    countriesList = countries.map((country) =>  (<li>{country.name.common}</li>))
+  } else {
+    const {languages, name, flags} = countries[0]
+    const languageKeys = Object.keys(languages)
+    countriesList = <div>{name.common}
+      {languageKeys.map(languageKey => <li>{languages[languageKey]}</li>)}
+      <img src={flags.png}/>
+    </div>
+  }
   return<div>{countriesList}</div>
 }
 

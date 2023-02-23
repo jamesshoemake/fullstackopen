@@ -8,10 +8,14 @@ const DisplayCountries = ({countries}) => {
   if(countries.length > 1){
     countriesList = countries.map((country) =>  (<li>{country.name.common}</li>))
   } else {
-    const {languages, name, flags} = countries[0]
+    const {languages, name, flags, capital, area} = countries[0]
     const languageKeys = Object.keys(languages)
     countriesList = <div>{name.common}
+    <p>capital: {capital[0]}</p>
+    <p>area: {area}</p>
+    <p>Languages:
       {languageKeys.map(languageKey => <li>{languages[languageKey]}</li>)}
+    </p>
       <img src={flags.png}/>
     </div>
   }

@@ -16,7 +16,7 @@ const DisplayCountries = ({countries}) => {
     <p>Languages:
       {languageKeys.map(languageKey => <li>{languages[languageKey]}</li>)}
     </p>
-      <img src={flags.png}/>
+      <img alt={name.common} src={flags.png}/>
     </div>
   }
   return<div>{countriesList}</div>
